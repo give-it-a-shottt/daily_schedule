@@ -1,3 +1,5 @@
+export type RepeatType = 'none' | 'daily' | 'weekday' | 'custom'
+
 export interface Schedule {
   id: string
   title: string
@@ -5,7 +7,8 @@ export interface Schedule {
   start_time: string | null
   end_time: string | null
   date: string | null
-  repeat_daily: boolean
+  repeat_type: RepeatType
+  repeat_days: number[]
   is_deleted: boolean
   created_at: string
   updated_at: string

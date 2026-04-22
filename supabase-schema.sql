@@ -6,7 +6,8 @@ CREATE TABLE schedules (
   start_time   TIME,
   end_time     TIME,
   date         DATE,
-  repeat_daily BOOLEAN NOT NULL DEFAULT FALSE,
+  repeat_type  TEXT NOT NULL DEFAULT 'none',
+  repeat_days  INTEGER[] NOT NULL DEFAULT '{}',
   is_deleted   BOOLEAN NOT NULL DEFAULT FALSE,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -26,7 +27,7 @@ CREATE TABLE schedule_logs (
 
 -- 인덱스
 CREATE INDEX idx_schedules_date   ON schedules(date)         WHERE date IS NOT NULL;
-CREATE INDEX idx_schedules_repeat ON schedules(repeat_daily) WHERE repeat_daily = TRUE;
+CREATE INDEX idx_schedules_repeat ON schedules(repeat_type) WHERE repeat_type != 'none';
 CREATE INDEX idx_logs_date        ON schedule_logs(log_date);
 CREATE INDEX idx_logs_schedule    ON schedule_logs(schedule_id);
 

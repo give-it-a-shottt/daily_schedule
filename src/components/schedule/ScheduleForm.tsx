@@ -1,13 +1,30 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
-import { Schedule } from '@/types'
+import { Schedule, RepeatType } from '@/types'
 import { createSchedule, updateSchedule } from '@/lib/queries/schedules'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils/cn'
+
+const DAY_OPTIONS = [
+  { label: '월', value: 1 },
+  { label: '화', value: 2 },
+  { label: '수', value: 3 },
+  { label: '목', value: 4 },
+  { label: '금', value: 5 },
+  { label: '토', value: 6 },
+  { label: '일', value: 0 },
+]
+
+const REPEAT_OPTIONS: { value: RepeatType; label: string; desc: string }[] = [
+  { value: 'none', label: '반복 없음', desc: '일회성 일정' },
+  { value: 'daily', label: '매일 반복', desc: '매일 기록' },
+  { value: 'weekday', label: '주말 제외', desc: '월~금만' },
+  { value: 'custom', label: '요일 선택', desc: '원하는 요일만' },
+]
 
 const schema = z
   .object({
@@ -16,11 +33,16 @@ const schema = z
     start_time: z.string().optional(),
     end_time: z.string().optional(),
     date: z.string().optional(),
-    repeat_daily: z.boolean(),
+    repeat_type: z.enum(['none', 'daily', 'weekday', 'custom']),
+    repeat_days: z.array(z.number()),
   })
   .refine(
-    (d) => d.repeat_daily || !!d.date,
-    { message: '날짜를 선택하거나 매일 반복을 체크하세요', path: ['date'] }
+    (d) => d.repeat_type !== 'none' || !!d.date,
+    { message: '날짜를 선택하세요', path: ['date'] }
+  )
+  .refine(
+    (d) => d.repeat_type !== 'custom' || d.repeat_days.length > 0,
+    { message: '요일을 하나 이상 선택하세요', path: ['repeat_days'] }
   )
 
 type FormValues = z.infer<typeof schema>
@@ -38,6 +60,7 @@ export function ScheduleForm({ schedule }: Props) {
     handleSubmit,
     watch,
     setValue,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -47,11 +70,20 @@ export function ScheduleForm({ schedule }: Props) {
       start_time: schedule?.start_time ?? '',
       end_time: schedule?.end_time ?? '',
       date: schedule?.date ?? '',
-      repeat_daily: schedule?.repeat_daily ?? false,
+      repeat_type: schedule?.repeat_type ?? 'none',
+      repeat_days: schedule?.repeat_days ?? [],
     },
   })
 
-  const repeatDaily = watch('repeat_daily')
+  const repeatType = watch('repeat_type')
+  const repeatDays = watch('repeat_days')
+
+  const toggleDay = (day: number) => {
+    const next = repeatDays.includes(day)
+      ? repeatDays.filter((d) => d !== day)
+      : [...repeatDays, day]
+    setValue('repeat_days', next, { shouldValidate: true })
+  }
 
   const onSubmit = async (values: FormValues) => {
     const payload = {
@@ -59,8 +91,9 @@ export function ScheduleForm({ schedule }: Props) {
       description: values.description || null,
       start_time: values.start_time || null,
       end_time: values.end_time || null,
-      date: values.repeat_daily ? null : values.date || null,
-      repeat_daily: values.repeat_daily,
+      date: values.repeat_type === 'none' ? (values.date || null) : null,
+      repeat_type: values.repeat_type,
+      repeat_days: values.repeat_type === 'custom' ? values.repeat_days : [],
     }
 
     if (isEdit) {
@@ -75,6 +108,7 @@ export function ScheduleForm({ schedule }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+      {/* 제목 */}
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-gray-700">제목 *</label>
         <input
@@ -89,16 +123,18 @@ export function ScheduleForm({ schedule }: Props) {
         {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
       </div>
 
+      {/* 메모 */}
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-gray-700">메모</label>
         <textarea
           {...register('description')}
           placeholder="간단한 메모 (선택)"
-          rows={3}
+          rows={2}
           className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none"
         />
       </div>
 
+      {/* 시간 */}
       <div className="flex gap-3">
         <div className="flex flex-1 flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">시작 시간</label>
@@ -118,25 +154,74 @@ export function ScheduleForm({ schedule }: Props) {
         </div>
       </div>
 
-      <label className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 cursor-pointer">
-        <div
-          onClick={() => setValue('repeat_daily', !repeatDaily)}
-          className={cn(
-            'relative h-6 w-11 rounded-full transition-colors',
-            repeatDaily ? 'bg-indigo-600' : 'bg-gray-300'
+      {/* 반복 선택 */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium text-gray-700">반복</label>
+        <Controller
+          control={control}
+          name="repeat_type"
+          render={({ field }) => (
+            <div className="grid grid-cols-2 gap-2">
+              {REPEAT_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    field.onChange(opt.value)
+                    if (opt.value !== 'custom') setValue('repeat_days', [])
+                  }}
+                  className={cn(
+                    'flex flex-col items-start rounded-xl border px-4 py-3 text-left transition-colors',
+                    field.value === opt.value
+                      ? 'border-indigo-500 bg-indigo-50'
+                      : 'border-gray-200 bg-white'
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'text-sm font-semibold',
+                      field.value === opt.value ? 'text-indigo-600' : 'text-gray-800'
+                    )}
+                  >
+                    {opt.label}
+                  </span>
+                  <span className="text-xs text-gray-400">{opt.desc}</span>
+                </button>
+              ))}
+            </div>
           )}
-        >
-          <div
-            className={cn(
-              'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform',
-              repeatDaily ? 'translate-x-5' : 'translate-x-0.5'
-            )}
-          />
-        </div>
-        <span className="text-sm font-medium text-gray-700">매일 반복</span>
-      </label>
+        />
+      </div>
 
-      {!repeatDaily && (
+      {/* 요일 선택 (custom일 때만) */}
+      {repeatType === 'custom' && (
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">요일 선택</label>
+          <div className="flex gap-2">
+            {DAY_OPTIONS.map((day) => (
+              <button
+                key={day.value}
+                type="button"
+                onClick={() => toggleDay(day.value)}
+                className={cn(
+                  'flex h-10 flex-1 items-center justify-center rounded-xl text-sm font-medium transition-colors',
+                  repeatDays.includes(day.value)
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-100 text-gray-500'
+                )}
+              >
+                {day.label}
+              </button>
+            ))}
+          </div>
+          {errors.repeat_days && (
+            <p className="text-xs text-red-500">{errors.repeat_days.message}</p>
+          )}
+        </div>
+      )}
+
+      {/* 날짜 (반복 없음일 때만) */}
+      {repeatType === 'none' && (
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">날짜 *</label>
           <input
@@ -153,12 +238,7 @@ export function ScheduleForm({ schedule }: Props) {
       )}
 
       <div className="flex gap-3 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          className="flex-1"
-          onClick={() => router.back()}
-        >
+        <Button type="button" variant="outline" className="flex-1" onClick={() => router.back()}>
           취소
         </Button>
         <Button type="submit" className="flex-1" disabled={isSubmitting}>

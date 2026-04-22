@@ -1,6 +1,22 @@
 import { createClient } from '@/lib/supabase/client'
-import { ScheduleLog, ScheduleWithLog } from '@/types'
+import { Schedule, ScheduleLog, ScheduleWithLog } from '@/types'
 import { materializeLogsForDates } from '@/lib/utils/materializer'
+
+function matchesDate(s: Schedule, date: string): boolean {
+  if (s.is_deleted) return false
+  const createdDate = s.created_at.slice(0, 10)
+  if (createdDate > date) return false
+
+  if (s.repeat_type === 'none') return s.date === date
+
+  if (s.repeat_type === 'daily') return true
+
+  const dow = new Date(date + 'T00:00:00').getDay()
+  if (s.repeat_type === 'weekday') return dow >= 1 && dow <= 5
+  if (s.repeat_type === 'custom') return (s.repeat_days ?? []).includes(dow)
+
+  return false
+}
 
 export async function getSchedulesWithLogsForDate(date: string): Promise<ScheduleWithLog[]> {
   const supabase = createClient()
@@ -11,20 +27,14 @@ export async function getSchedulesWithLogsForDate(date: string): Promise<Schedul
     .from('schedules')
     .select('*')
     .eq('is_deleted', false)
-    .or(`date.eq.${date},repeat_daily.eq.true`)
     .order('start_time', { ascending: true, nullsFirst: false })
 
   if (sErr) throw sErr
 
-  const filtered = (schedules ?? []).filter((s) => {
-    if (s.repeat_daily) return s.created_at.slice(0, 10) <= date
-    return s.date === date
-  })
-
+  const filtered = (schedules ?? [] as Schedule[]).filter((s) => matchesDate(s, date))
   if (filtered.length === 0) return []
 
   const ids = filtered.map((s) => s.id)
-
   const { data: logs, error: lErr } = await supabase
     .from('schedule_logs')
     .select('*')
@@ -34,7 +44,6 @@ export async function getSchedulesWithLogsForDate(date: string): Promise<Schedul
   if (lErr) throw lErr
 
   const logMap = new Map((logs ?? []).map((l: ScheduleLog) => [l.schedule_id, l]))
-
   return filtered.map((s) => ({ ...s, log: logMap.get(s.id) ?? null }))
 }
 
@@ -53,7 +62,7 @@ export async function getSchedulesWithLogsForDates(
 
   if (sErr) throw sErr
 
-  const allSchedules = schedules ?? []
+  const allSchedules = (schedules ?? []) as Schedule[]
   const ids = allSchedules.map((s) => s.id)
 
   const { data: logs, error: lErr } =
@@ -68,18 +77,12 @@ export async function getSchedulesWithLogsForDates(
   if (lErr) throw lErr
 
   const result: Record<string, ScheduleWithLog[]> = {}
-
   for (const date of dates) {
-    const dateSchedules = allSchedules.filter((s) => {
-      if (s.is_deleted) return false
-      if (s.repeat_daily) return s.created_at.slice(0, 10) <= date
-      return s.date === date
-    })
-
     const dateLogs = (logs ?? []).filter((l: ScheduleLog) => l.log_date === date)
     const logMap = new Map(dateLogs.map((l: ScheduleLog) => [l.schedule_id, l]))
-
-    result[date] = dateSchedules.map((s) => ({ ...s, log: logMap.get(s.id) ?? null }))
+    result[date] = allSchedules
+      .filter((s) => matchesDate(s, date))
+      .map((s) => ({ ...s, log: logMap.get(s.id) ?? null }))
   }
 
   return result

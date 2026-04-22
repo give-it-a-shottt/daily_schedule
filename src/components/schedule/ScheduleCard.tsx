@@ -75,10 +75,15 @@ export function ScheduleCard({ item, onToggle }: Props) {
           {timeLabel && (
             <span className="text-xs text-gray-400">{timeLabel}</span>
           )}
-          {item.repeat_daily && (
+          {item.repeat_type !== 'none' && (
             <span className="flex items-center gap-0.5 text-xs text-indigo-400">
               <RotateCw className="h-3 w-3" />
-              매일
+              {item.repeat_type === 'daily' && '매일'}
+              {item.repeat_type === 'weekday' && '주중'}
+              {item.repeat_type === 'custom' &&
+                (['일', '월', '화', '수', '목', '금', '토']
+                  .filter((_, i) => (item.repeat_days ?? []).includes(i))
+                  .join('·'))}
             </span>
           )}
         </div>
