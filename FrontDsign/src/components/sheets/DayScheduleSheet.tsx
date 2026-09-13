@@ -42,7 +42,7 @@ export function DayScheduleSheet({
       onClose={onClose}
       headerExtra={
         <div className="rounded-full border border-[rgba(129,140,248,0.5)] bg-[rgba(129,140,248,0.35)] px-3 py-[5px]">
-          <span className="font-['Inter:Semi_Bold','Noto_Sans_KR:Bold',sans-serif] text-[12px] font-semibold text-[rgba(255,255,255,0.85)]">
+          <span className="font-['Inter:Semi_Bold','Noto_Sans_KR',sans-serif] text-[12px] font-semibold text-[rgba(255,255,255,0.85)]">
             {items.length}개 등록
           </span>
         </div>
@@ -50,7 +50,7 @@ export function DayScheduleSheet({
     >
       <div className="flex w-full flex-col gap-[10px] px-6 pb-2 pt-4 max-h-[45vh] overflow-y-auto">
         {items.length === 0 && (
-          <p className="py-6 text-center font-['Inter:Regular','Noto_Sans_KR:Regular',sans-serif] text-[13px] text-ink-faint">
+          <p className="py-6 text-center font-['Inter:Regular','Noto_Sans_KR',sans-serif] text-[13px] text-ink-faint">
             등록된 일정이 없어요
           </p>
         )}
@@ -74,14 +74,14 @@ export function DayScheduleSheet({
             </button>
             <div className="min-w-0 flex-1">
               <p
-                className={`font-['Inter:Semi_Bold','Noto_Sans_KR:Bold',sans-serif] text-[14px] font-semibold leading-[1.3] ${
+                className={`font-['Inter:Semi_Bold','Noto_Sans_KR',sans-serif] text-[14px] font-semibold leading-[1.3] ${
                   item.completed ? "text-ink-muted line-through" : "text-white"
                 }`}
               >
                 {item.title}
               </p>
               {itemSubtitle(item) && (
-                <p className="mt-[2px] font-['Inter:Regular','Noto_Sans_KR:Regular',sans-serif] text-[12px] text-[rgba(255,255,255,0.45)]">
+                <p className="mt-[2px] font-['Inter:Regular','Noto_Sans_KR',sans-serif] text-[12px] text-[rgba(255,255,255,0.45)]">
                   {itemSubtitle(item)}
                 </p>
               )}
@@ -89,7 +89,7 @@ export function DayScheduleSheet({
             {item.kind === "study" && (
               <button
                 onClick={() => handleDeleteSource(item)}
-                className="ml-2 shrink-0 whitespace-nowrap rounded-full border border-[rgba(255,255,255,0.15)] px-[10px] py-[5px] font-['Inter:Semi_Bold','Noto_Sans_KR:Bold',sans-serif] text-[11px] font-semibold text-ink-faint"
+                className="ml-2 shrink-0 whitespace-nowrap rounded-full border border-[rgba(255,255,255,0.15)] px-[10px] py-[5px] font-['Inter:Semi_Bold','Noto_Sans_KR',sans-serif] text-[11px] font-semibold text-ink-faint"
               >
                 전체 삭제
               </button>
@@ -115,7 +115,7 @@ export function DayScheduleSheet({
           <svg fill="none" height="18" viewBox="0 0 18 18" width="18">
             <path d="M9 3.75V14.25M3.75 9H14.25" stroke="rgba(255,255,255,0.7)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.875" />
           </svg>
-          <span className="font-['Inter:Bold','Noto_Sans_KR:Bold',sans-serif] text-[17px] font-bold tracking-[-0.425px] text-[rgba(255,255,255,0.7)]">
+          <span className="font-['Inter:Bold','Noto_Sans_KR',sans-serif] text-[17px] font-bold tracking-[-0.425px] text-[rgba(255,255,255,0.7)]">
             일정 추가
           </span>
         </button>

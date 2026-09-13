@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 @theme {
@@ -58,15 +58,8 @@
   font-weight: 400;
   src: url("https://static.figma.com/font/Inter_1") format("woff2");
 }
-@font-face {
-  font-family: "Noto Sans KR:Bold";
-  font-style: normal;
-  font-weight: 700;
-  src: url("https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgm203Tq4JJWq209pU0DPdWuqxJFA4GNDCBYtw.0.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Noto Sans KR:Regular";
-  font-style: normal;
-  font-weight: 400;
-  src: url("https://fonts.gstatic.com/s/notosanskr/v36/PbyxFmXiEBPT4ITbgNA5Cgm203Tq4JJWq209pU0DPdWuqxJFA4GNDCBYtw.0.woff2") format("woff2");
-}
+/* Noto Sans KR is loaded by the @import above (family "Noto Sans KR", weights
+   400/500/600/700) — components reference it as plain "Noto Sans KR" rather
+   than the old "Noto Sans KR:Bold"/"Noto Sans KR:Regular" pseudo-names, so a
+   separate @font-face pinned to a specific (and, as it turned out, since-
+   rotated) gstatic file hash isn't needed. */

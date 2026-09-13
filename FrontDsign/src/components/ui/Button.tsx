@@ -18,7 +18,7 @@ export function Button({ variant = "primary", icon, className = "", children, ..
   return (
     <button
       {...rest}
-      className={`flex h-[45px] w-full cursor-pointer items-center justify-center gap-2 rounded-card font-['Inter:Bold','Noto_Sans_KR:Bold',sans-serif] text-[14px] font-bold transition-opacity active:opacity-80 ${VARIANT_CLASSES[variant]} ${className}`}
+      className={`flex h-[45px] w-full cursor-pointer items-center justify-center gap-2 rounded-card font-['Inter:Bold','Noto_Sans_KR',sans-serif] text-[14px] font-bold transition-opacity active:opacity-80 ${VARIANT_CLASSES[variant]} ${className}`}
     >
       {icon}
       {children}

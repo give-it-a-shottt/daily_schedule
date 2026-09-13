@@ -101,7 +101,7 @@ export function CalendarPage() {
           <svg fill="none" height="18" viewBox="0 0 18 18" width="18" className="relative">
             <path d="M9 3.75V14.25M3.75 9H14.25" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.875" />
           </svg>
-          <span className="relative font-['Inter:Bold','Noto_Sans_KR:Bold',sans-serif] text-[17px] font-bold tracking-[-0.425px] text-white">
+          <span className="relative font-['Inter:Bold','Noto_Sans_KR',sans-serif] text-[17px] font-bold tracking-[-0.425px] text-white">
             학습등록
           </span>
         </button>

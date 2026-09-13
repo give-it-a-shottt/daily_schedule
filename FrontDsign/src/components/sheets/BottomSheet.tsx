@@ -37,10 +37,10 @@ export function BottomSheet({ eyebrow, title, onClose, headerExtra, children }: 
 
         <div className="flex w-full items-center justify-between px-6 pb-4 pt-3">
           <div className="flex flex-col items-start">
-            <p className="font-['Inter:Semi_Bold','Noto_Sans_KR:Bold',sans-serif] text-[11px] font-semibold uppercase tracking-[0.8px] text-[rgba(255,255,255,0.3)]">
+            <p className="font-['Inter:Semi_Bold','Noto_Sans_KR',sans-serif] text-[11px] font-semibold uppercase tracking-[0.8px] text-[rgba(255,255,255,0.3)]">
               {eyebrow}
             </p>
-            <p className="mt-[2px] font-['Inter:Bold','Noto_Sans_KR:Bold',sans-serif] text-[22px] font-bold text-white">
+            <p className="mt-[2px] font-['Inter:Bold','Noto_Sans_KR',sans-serif] text-[22px] font-bold text-white">
               {title}
             </p>
           </div>

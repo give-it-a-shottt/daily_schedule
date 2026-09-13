@@ -16,7 +16,7 @@ export function SegmentedToggle<T extends string>({ options, value, onChange }: 
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
-            className={`flex-1 cursor-pointer rounded-[10px] py-[9px] font-['Inter:Semi_Bold','Noto_Sans_KR:Bold',sans-serif] text-[13px] font-semibold transition-colors ${
+            className={`flex-1 cursor-pointer rounded-[10px] py-[9px] font-['Inter:Semi_Bold','Noto_Sans_KR',sans-serif] text-[13px] font-semibold transition-colors ${
               active ? "bg-accent text-white" : "text-ink-muted"
             }`}
           >

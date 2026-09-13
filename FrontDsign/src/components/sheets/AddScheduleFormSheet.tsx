@@ -37,11 +37,18 @@ type AddScheduleFormSheetProps = {
   onCreated: () => void;
 };
 
-export function AddScheduleFormSheet({ selectedDate, onClose, onCreated }: AddScheduleFormSheetProps) {
+export function AddScheduleFormSheet({
+  selectedDate,
+  onClose,
+  onCreated,
+}: AddScheduleFormSheetProps) {
   const [mode, setMode] = useState<Mode>("simple");
 
   return (
-    <BottomSheet eyebrow="일정 추가" title={formatKoreanDay(selectedDate)} onClose={onClose}>
+    <BottomSheet
+      eyebrow="일정 추가"
+      title={formatKoreanDay(selectedDate)}
+      onClose={onClose}>
       <div className="w-full px-6 pt-4">
         <SegmentedToggle
           value={mode}
@@ -53,9 +60,17 @@ export function AddScheduleFormSheet({ selectedDate, onClose, onCreated }: AddSc
         />
       </div>
       {mode === "simple" ? (
-        <SimpleForm selectedDate={selectedDate} onClose={onClose} onCreated={onCreated} />
+        <SimpleForm
+          selectedDate={selectedDate}
+          onClose={onClose}
+          onCreated={onCreated}
+        />
       ) : (
-        <StudyForm selectedDate={selectedDate} onClose={onClose} onCreated={onCreated} />
+        <StudyForm
+          selectedDate={selectedDate}
+          onClose={onClose}
+          onCreated={onCreated}
+        />
       )}
     </BottomSheet>
   );
@@ -78,7 +93,12 @@ function SimpleForm({
   const handleSubmit = () => {
     if (!title.trim()) return;
     createItem.mutate(
-      { date: toISODate(selectedDate), title: title.trim(), time: time || null, memo: memo.trim() || null },
+      {
+        date: toISODate(selectedDate),
+        title: title.trim(),
+        time: time || null,
+        memo: memo.trim() || null,
+      },
       { onSuccess: onCreated },
     );
   };
@@ -86,7 +106,11 @@ function SimpleForm({
   return (
     <div className="w-full px-6 pb-8 pt-4">
       <div className="flex w-full flex-col gap-2 rounded-card border border-surface-border bg-[rgba(255,255,255,0.05)] p-4">
-        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="일정 제목" />
+        <TextInput
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="일정 제목"
+        />
         <input
           type="time"
           value={time}
@@ -94,17 +118,26 @@ function SimpleForm({
           style={{ colorScheme: "dark" }}
           className="h-[47px] w-full rounded-field border border-surface-border bg-[rgba(255,255,255,0.07)] px-4 font-['Inter:Regular',sans-serif] text-[14px] text-white outline-none"
         />
-        <TextInput value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="메모 (선택)" />
+        <TextInput
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          placeholder="메모 (선택)"
+        />
         <div className="flex w-full gap-2 pt-1">
           <Button variant="secondary" onClick={onClose} type="button">
             취소
           </Button>
-          <Button onClick={handleSubmit} type="button" disabled={createItem.isPending || !title.trim()}>
+          <Button
+            onClick={handleSubmit}
+            type="button"
+            disabled={createItem.isPending || !title.trim()}>
             {createItem.isPending ? "등록 중..." : "등록"}
           </Button>
         </div>
         {createItem.isError && (
-          <p className="pt-1 text-[12px] text-red-300">등록에 실패했어요. 다시 시도해주세요.</p>
+          <p className="pt-1 text-[12px] text-red-300">
+            등록에 실패했어요. 다시 시도해주세요.
+          </p>
         )}
       </div>
     </div>
@@ -121,17 +154,18 @@ function StudyForm({
   onCreated: () => void;
 }) {
   const createStudySource = useCreateStudySource();
-  const { control, register, handleSubmit, watch, formState } = useForm<StudyFormValues>({
-    resolver: zodResolver(studySchema),
-    defaultValues: {
-      title: "",
-      sourceType: "book",
-      totalUnits: undefined as unknown as number,
-      periodOption: "30",
-      customDays: undefined,
-      startDate: toISODate(selectedDate),
-    },
-  });
+  const { control, register, handleSubmit, watch, formState } =
+    useForm<StudyFormValues>({
+      resolver: zodResolver(studySchema),
+      defaultValues: {
+        title: "",
+        sourceType: "book",
+        totalUnits: undefined as unknown as number,
+        periodOption: "30",
+        customDays: undefined,
+        startDate: toISODate(selectedDate),
+      },
+    });
 
   const sourceType = watch("sourceType");
   const totalUnits = watch("totalUnits");
@@ -139,7 +173,8 @@ function StudyForm({
   const customDays = watch("customDays");
   const startDate = watch("startDate");
 
-  const periodDays = periodOption === "custom" ? Number(customDays) || 0 : Number(periodOption);
+  const periodDays =
+    periodOption === "custom" ? Number(customDays) || 0 : Number(periodOption);
   const unitLabel = UNIT_LABEL[sourceType];
 
   const preview = useMemo(() => {
@@ -155,8 +190,10 @@ function StudyForm({
     let amountLine: string;
     if (units < periodDays) {
       const avgInterval = periodDays / units;
-      const avgIntervalLabel = Number.isInteger(avgInterval) ? `${avgInterval}` : avgInterval.toFixed(1);
-      amountLine = `${unitLabel} ${units}개를 ${periodDays}일에 걸쳐 듬성듬성 배치 (평균 ${avgIntervalLabel}일마다 1${unitLabel})`;
+      const avgIntervalLabel = Number.isInteger(avgInterval)
+        ? `${avgInterval}`
+        : avgInterval.toFixed(1);
+      amountLine = `강의 ${units}개를 ${periodDays}일에 걸쳐 배치 (평균 ${avgIntervalLabel}일마다 1${unitLabel})`;
     } else {
       const base = Math.floor(units / periodDays);
       const remainder = units % periodDays;
@@ -173,7 +210,10 @@ function StudyForm({
   }, [totalUnits, periodDays, startDate, unitLabel]);
 
   const onSubmit = (values: StudyFormValues) => {
-    const days = values.periodOption === "custom" ? values.customDays ?? 0 : Number(values.periodOption);
+    const days =
+      values.periodOption === "custom"
+        ? (values.customDays ?? 0)
+        : Number(values.periodOption);
     if (days <= 0) return;
     createStudySource.mutate(
       {
@@ -207,11 +247,17 @@ function StudyForm({
         />
 
         <TextInput
-          placeholder={sourceType === "book" ? "책 제목 (예: 클린 코드)" : "강의명 (예: 자료구조 강의)"}
+          placeholder={
+            sourceType === "book"
+              ? "책 제목 (예: 클린 코드)"
+              : "강의명 (예: 자료구조 강의)"
+          }
           {...register("title")}
         />
         {formState.errors.title && (
-          <p className="text-[12px] text-red-300">{formState.errors.title.message}</p>
+          <p className="text-[12px] text-red-300">
+            {formState.errors.title.message}
+          </p>
         )}
 
         <div className="flex gap-2">
@@ -228,7 +274,9 @@ function StudyForm({
           />
         </div>
         {formState.errors.totalUnits && (
-          <p className="text-[12px] text-red-300">{formState.errors.totalUnits.message}</p>
+          <p className="text-[12px] text-red-300">
+            {formState.errors.totalUnits.message}
+          </p>
         )}
 
         <Controller
@@ -248,15 +296,19 @@ function StudyForm({
           )}
         />
         {periodOption === "custom" && (
-          <NumberInput placeholder="기간(일)" suffix="일" {...register("customDays", { valueAsNumber: true })} />
+          <NumberInput
+            placeholder="기간(일)"
+            suffix="일"
+            {...register("customDays", { valueAsNumber: true })}
+          />
         )}
 
         {preview && (
           <div className="rounded-field border border-[rgba(129,140,248,0.3)] bg-accent-soft px-4 py-3">
-            <p className="font-['Inter:Semi_Bold','Noto_Sans_KR:Bold',sans-serif] text-[13px] font-semibold text-white">
+            <p className="font-['Inter:Semi_Bold','Noto_Sans_KR',sans-serif] text-[13px] font-semibold text-white">
               {preview.amountLine}
             </p>
-            <p className="mt-[2px] font-['Inter:Regular','Noto_Sans_KR:Regular',sans-serif] text-[12px] text-ink-muted">
+            <p className="mt-[2px] font-['Inter:Regular','Noto_Sans_KR',sans-serif] text-[12px] text-ink-muted">
               {preview.rangeLine}
             </p>
           </div>
@@ -271,7 +323,9 @@ function StudyForm({
           </Button>
         </div>
         {createStudySource.isError && (
-          <p className="pt-1 text-[12px] text-red-300">등록에 실패했어요. 다시 시도해주세요.</p>
+          <p className="pt-1 text-[12px] text-red-300">
+            등록에 실패했어요. 다시 시도해주세요.
+          </p>
         )}
       </div>
     </form>
