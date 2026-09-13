@@ -151,16 +151,19 @@ function StudyForm({
     if (chunks.length === 0) return null;
 
     const end = addDays(start, periodDays - 1);
-    const base = Math.floor(units / periodDays);
-    const remainder = units % periodDays;
 
     let amountLine: string;
-    if (base === 0) {
-      amountLine = `${remainder}일 동안 매일 1${unitLabel}씩 (나머지 ${periodDays - remainder}일은 쉬어요)`;
-    } else if (remainder === 0) {
-      amountLine = `매일 ${base}${unitLabel}씩`;
+    if (units < periodDays) {
+      const avgInterval = periodDays / units;
+      const avgIntervalLabel = Number.isInteger(avgInterval) ? `${avgInterval}` : avgInterval.toFixed(1);
+      amountLine = `${unitLabel} ${units}개를 ${periodDays}일에 걸쳐 듬성듬성 배치 (평균 ${avgIntervalLabel}일마다 1${unitLabel})`;
     } else {
-      amountLine = `${remainder}일은 ${base + 1}${unitLabel}, 나머지 ${periodDays - remainder}일은 ${base}${unitLabel}`;
+      const base = Math.floor(units / periodDays);
+      const remainder = units % periodDays;
+      amountLine =
+        remainder === 0
+          ? `매일 ${base}${unitLabel}씩`
+          : `${remainder}일은 ${base + 1}${unitLabel}, 나머지 ${periodDays - remainder}일은 ${base}${unitLabel}`;
     }
 
     return {

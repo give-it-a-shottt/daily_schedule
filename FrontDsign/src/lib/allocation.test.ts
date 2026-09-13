@@ -26,13 +26,39 @@ describe("allocate", () => {
     expect(chunks[29]).toEqual({ date: "2026-01-30", unitFrom: 98, unitTo: 100 });
   });
 
-  it("skips zero-amount days when totalUnits < periodDays", () => {
+  it("spreads totalUnits evenly across periodDays when totalUnits < periodDays", () => {
     const chunks = allocate(10, 30, START);
     expect(chunks).toHaveLength(10);
+    // evenly divides: every 3rd day
+    expect(chunks.map((c) => c.date)).toEqual([
+      "2026-01-01",
+      "2026-01-04",
+      "2026-01-07",
+      "2026-01-10",
+      "2026-01-13",
+      "2026-01-16",
+      "2026-01-19",
+      "2026-01-22",
+      "2026-01-25",
+      "2026-01-28",
+    ]);
     chunks.forEach((c, i) => {
       expect(c.unitFrom).toBe(i + 1);
       expect(c.unitTo).toBe(i + 1);
     });
+  });
+
+  it("spreads a small lecture count evenly instead of front-loading (12 lectures / 30 days)", () => {
+    const chunks = allocate(12, 30, START);
+    expect(chunks).toHaveLength(12);
+    // spread across the full 30-day period, not crammed into the first 12 days
+    const dayOffsets = chunks.map((c) => {
+      const [y, m, d] = c.date.split("-").map(Number);
+      const day = new Date(y, m - 1, d);
+      return Math.round((day.getTime() - START.getTime()) / 86_400_000);
+    });
+    expect(dayOffsets).toEqual([0, 2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27]);
+    expect(Math.max(...dayOffsets)).toBeLessThan(30);
   });
 
   it("gives every day exactly 1 unit when totalUnits === periodDays", () => {

@@ -7,12 +7,16 @@ export type AllocatedChunk = {
 };
 
 /**
- * Splits `totalUnits` (pages/lectures) evenly across `periodDays`, starting
- * at `startDate`. Any remainder is front-loaded onto the earliest days so
- * the tail of the period has more slack for catch-up/review.
+ * Splits `totalUnits` (pages/lectures) across `periodDays`, starting at
+ * `startDate`.
  *
- * Days that would receive 0 units (totalUnits < periodDays) are omitted
- * rather than emitted as empty chunks.
+ * - totalUnits >= periodDays: every day gets at least 1 unit; any remainder
+ *   is front-loaded onto the earliest days, leaving more slack near the end
+ *   of the period for catch-up/review.
+ * - totalUnits < periodDays: there's less to study than there are days, so
+ *   instead of cramming everything into the first `totalUnits` consecutive
+ *   days (leaving a long unused tail), the units are spread evenly across
+ *   the whole period.
  */
 export function allocate(
   totalUnits: number,
@@ -20,6 +24,19 @@ export function allocate(
   startDate: Date,
 ): AllocatedChunk[] {
   if (totalUnits <= 0 || periodDays <= 0) return [];
+
+  if (totalUnits < periodDays) {
+    const chunks: AllocatedChunk[] = [];
+    for (let i = 0; i < totalUnits; i++) {
+      const dayIndex = Math.floor((i * periodDays) / totalUnits);
+      chunks.push({
+        date: toISODate(addDays(startDate, dayIndex)),
+        unitFrom: i + 1,
+        unitTo: i + 1,
+      });
+    }
+    return chunks;
+  }
 
   const base = Math.floor(totalUnits / periodDays);
   const remainder = totalUnits % periodDays;
@@ -29,8 +46,6 @@ export function allocate(
 
   for (let dayIndex = 0; dayIndex < periodDays; dayIndex++) {
     const amount = base + (dayIndex < remainder ? 1 : 0);
-    if (amount === 0) continue;
-
     const unitFrom = cursor;
     const unitTo = cursor + amount - 1;
     chunks.push({
