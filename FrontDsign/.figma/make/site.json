@@ -1,0 +1,12 @@
+{
+  "title": "Accio_Schedule",
+  "description": "책/강의를 기간으로 나눠 하루 학습량을 자동으로 계산해주는 개인용 일정 앱",
+  "language": "ko",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

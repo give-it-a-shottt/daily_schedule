@@ -1,0 +1,16 @@
+{
+  "name": "Accio_Schedule",
+  "short_name": "Accio_Schedule",
+  "description": "책/강의를 기간으로 나눠 하루 학습량을 자동으로 계산해주는 개인용 일정 앱",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1e1b4b",
+  "theme_color": "#1e1b4b",
+  "lang": "ko",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
