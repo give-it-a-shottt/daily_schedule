@@ -4,6 +4,7 @@ import { MonthNavHeader } from "../components/calendar/MonthNavHeader";
 import { AddScheduleFormSheet } from "../components/sheets/AddScheduleFormSheet";
 import { DayScheduleSheet } from "../components/sheets/DayScheduleSheet";
 import { useDeleteScheduleItem, useScheduleRange, useSetScheduleItemCompleted } from "../hooks/useSchedule";
+import { useDeleteStudySource } from "../hooks/useStudySources";
 import { buildMonthGrid, formatKoreanDay, toISODate, type CalendarDay } from "../lib/dates";
 import type { ScheduleItem } from "../types";
 
@@ -22,6 +23,7 @@ export function CalendarPage() {
   const { data: items = [] } = useScheduleRange(rangeStartISO, rangeEndISO);
   const toggleCompleted = useSetScheduleItemCompleted();
   const deleteItem = useDeleteScheduleItem();
+  const deleteSource = useDeleteStudySource();
 
   const itemsByDate = useMemo(() => {
     const map = new Map<string, ScheduleItem[]>();
@@ -113,6 +115,7 @@ export function CalendarPage() {
           onAddSchedule={() => setSheet("add")}
           onToggleCompleted={(item) => toggleCompleted.mutate({ id: item.id, completed: !item.completed })}
           onDelete={(item) => deleteItem.mutate(item.id)}
+          onDeleteSource={(studySourceId) => deleteSource.mutate(studySourceId)}
         />
       )}
       {sheet === "add" && (

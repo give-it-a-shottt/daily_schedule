@@ -9,6 +9,7 @@ type DayScheduleSheetProps = {
   onAddSchedule: () => void;
   onToggleCompleted: (item: ScheduleItem) => void;
   onDelete: (item: ScheduleItem) => void;
+  onDeleteSource: (studySourceId: string) => void;
 };
 
 function itemSubtitle(item: ScheduleItem): string {
@@ -25,7 +26,15 @@ export function DayScheduleSheet({
   onAddSchedule,
   onToggleCompleted,
   onDelete,
+  onDeleteSource,
 }: DayScheduleSheetProps) {
+  const handleDeleteSource = (item: ScheduleItem) => {
+    if (!item.study_source_id) return;
+    if (window.confirm("이 학습을 통째로 삭제할까요? 등록된 모든 날짜(완료한 기록 포함)가 함께 삭제돼요.")) {
+      onDeleteSource(item.study_source_id);
+    }
+  };
+
   return (
     <BottomSheet
       eyebrow="학습 일정"
@@ -77,6 +86,14 @@ export function DayScheduleSheet({
                 </p>
               )}
             </div>
+            {item.kind === "study" && (
+              <button
+                onClick={() => handleDeleteSource(item)}
+                className="ml-2 shrink-0 whitespace-nowrap rounded-full border border-[rgba(255,255,255,0.15)] px-[10px] py-[5px] font-['Inter:Semi_Bold','Noto_Sans_KR:Bold',sans-serif] text-[11px] font-semibold text-ink-faint"
+              >
+                전체 삭제
+              </button>
+            )}
             <button
               onClick={() => onDelete(item)}
               aria-label="삭제"
